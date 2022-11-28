@@ -5,3 +5,11 @@
 # vs-code folders
 .vscode
 /vscode
+
+# django migrations
+/vschcp/.migrations
+/vschcp/migrations
+
+# cpython files
+*.cpython-310.pyc
+*.pyc
