@@ -16,9 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from .views import Users
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', Users.as_view(), name='users')
+    path('', views.TrailView, name='redirect-view'),
+    path('login/', views.AuthorLoginView, name='author-login'),
+    path('feed/', views.Feed.as_view(), name='Feed'),
+    path('author/<alias>', views.Author.as_view(), name='author'),
+    path('article/<author>/<slug:title>', views.Article.as_view(), name='article'),
 ]

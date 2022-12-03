@@ -6,6 +6,34 @@ from django.db import models
 from django.utils.timezone import now as djtnow
 
 
+class Author(models.Model):
+    """
+    Model for managing authors
+    """
+    alias = models.OneToOneField(
+        to=User,
+        to_field='username',
+        verbose_name='User',
+        on_delete=models.CASCADE
+    )
+    name = models.CharField(
+        verbose_name='Full name',
+        blank=False,
+        default='John Doe',
+        max_length=50,
+        unique=True
+    )
+    bio = models.TextField(
+        verbose_name='Bio',
+        blank=False,
+        default='Sample bio',
+        max_length=280
+    )
+
+    def __str__(self) -> str:
+        return f'{self.name} with alias {self.alias}'
+
+
 class Article(models.Model):
     """
     Model for managing author publications
@@ -18,7 +46,7 @@ class Article(models.Model):
         unique=True
     )
     author = models.OneToOneField(
-        to=User,
+        to=Author,
         verbose_name='Author',
         on_delete=models.CASCADE
     )
@@ -37,8 +65,7 @@ class Article(models.Model):
         verbose_name='Date',
         blank=False,
         default=djtnow,
-
     )
 
     def __str__(self) -> str:
-        return f'{self.title} by {self.author.username}; {self.date}'
+        return f'{self.title} by {self.author.name}; {self.date}'

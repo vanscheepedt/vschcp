@@ -13,3 +13,7 @@
 # cpython files
 *.cpython-310.pyc
 *.pyc
+
+# sqlite3 files
+db.sqlite3
+*.sqlite3

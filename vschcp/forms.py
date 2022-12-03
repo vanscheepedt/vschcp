@@ -1,13 +1,21 @@
-from django.contrib.auth.models import User
 from django.forms import ModelForm
 
-from .models import Article
+from .models import Article, Author
 
 
-class UserForm(ModelForm):
+class AuthorForm(ModelForm):
     """
-    Form for user creation
+    Form for author creation
     """
     class Meta:
-        model = User
-        fields = ['username', 'password']
+        model = Author
+        fields = ['name', 'bio']
+
+
+class ArticleForm(ModelForm):
+    """
+    Form for article submission
+    """
+    class Meta:
+        model = Article
+        fields = ['title', 'summary', 'article']
