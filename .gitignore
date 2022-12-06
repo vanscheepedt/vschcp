@@ -17,3 +17,8 @@
 # sqlite3 files
 db.sqlite3
 *.sqlite3
+
+# npm package files
+package-lock.json
+.node_modules
+/node_modules
