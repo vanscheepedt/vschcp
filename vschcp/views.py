@@ -56,7 +56,7 @@ class Author(View):
             )
             
 
-    def post(self, request: HttpRequest, alias: str) -> HttpResponse:
+    def post(self, request: HttpRequest) -> HttpResponse:
         # clean and validate form data
         __form = forms.AuthorForm(request.POST)
         if __form.is_valid():
@@ -109,7 +109,19 @@ class Author(View):
             return HttpResponseNotFound('Author not found')
 
     def delete(self, request: HttpRequest, alias: str) -> HttpResponse:
-        return
+        # retrieve author to be deleted
+        try:
+            author: models.Author = models.Author.objects.get(alias=alias)
+            author.delete()
+            return HttpResponse(
+                'Author deleted',
+                content_type='application/json',
+                status=200
+            )
+
+        # handle exceptions
+        except djex.ObjectDoesNotExist:
+            return HttpResponseNotFound('Author not found')
 
 
 class Article(View):
@@ -145,14 +157,77 @@ class Article(View):
                 status=200
             )
 
-    def post(self, request: HttpRequest, author: str, title: str) -> HttpResponse:
-        return
+    def post(self, request: HttpRequest) -> HttpResponse:
+        # clean and validate form data
+        __form = forms.ArticleForm(request.POST)
+        if __form.is_valid():
+
+            # create author
+            __form.save()
+
+            # return author data
+            respdct = json.dumps(__form.cleaned_data)
+            return HttpResponse(
+                respdct,
+                content_type='application/json',
+                status=201
+            )
+
+        # if data not valid
+        else:
+            respdct = json.dumps(__form.errors)
+            return HttpResponseBadRequest(respdct)
 
     def put(self, request: HttpRequest, author: str, title: str) -> HttpResponse:
-        return
+        # decode request body
+        __body: dict = literal_eval(request.body.decode('utf-8', 'ignore'))
+
+        # retrieve author to be updated
+        try:
+            article: models.Article = models.Article.objects.get(
+                author=author,
+                title=title
+            )
+            # clean and validate form data
+            __form = forms.ArticleForm(data=__body, instance=article)
+            if __form.is_valid():
+
+                # update author
+                __form.save()
+
+                # return author data
+                respdct = json.dumps(__form.cleaned_data)
+                return HttpResponse(
+                    respdct,
+                    content_type='application/json',
+                    status=204
+                )
+
+            # if data not valid
+            else:
+                respdct = json.dumps(__form.errors)
+                return HttpResponseBadRequest(respdct)
+
+        # handle exceptions
+        except djex.ObjectDoesNotExist:
+            return HttpResponseNotFound('Article not found')
 
     def delete(self, request: HttpRequest, author: str, title: str) -> HttpResponse:
-        return
+        # retrieve author to be deleted
+        try:
+            article: models.Article = models.Article.objects.get(
+                author=author, title=title
+            )
+            article.delete()
+            return HttpResponse(
+                'Article deleted',
+                content_type='application/json',
+                status=200
+            )
+
+        # handle exceptions
+        except djex.ObjectDoesNotExist:
+            return HttpResponseNotFound('Article not found')
 
 
 class Feed(View):
@@ -160,5 +235,26 @@ class Feed(View):
     View to manage feed:
     ** get -- retrieve articles
     """
-    def get(self, request: HttpRequest) -> HttpResponse:
-        return
+    def get(self, request: HttpRequest, author: str | None = None) -> HttpResponse:
+        # retrieve article either all or based on author
+        __articles = (
+            models.Article.objects.all()
+        ) if not author else (
+            models.Article.objects.filter(author=author)
+        )
+
+        # serialise article
+        articles = []
+        for __article in __articles:
+            __a = __article.__dict__
+            __a.pop('_state')
+            articles.append(__a)
+        
+        # dumps to response entity
+        respdict = json.dumps({'articles': articles})
+
+        return HttpResponse(
+            respdict,
+            content_type='application/json',
+            status=200
+        )

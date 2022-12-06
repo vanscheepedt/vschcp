@@ -19,10 +19,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin', admin.site.urls),
     path('', views.TrailView, name='redirect-view'),
-    path('login/', views.AuthorLoginView, name='author-login'),
-    path('feed/', views.Feed.as_view(), name='Feed'),
+    path('login', views.AuthorLoginView, name='author-login'),
+    path('feed', views.Feed.as_view(), name='Feed'),
+    path('author', views.Author.as_view(), name='author-post'),
     path('author/<alias>', views.Author.as_view(), name='author'),
+    path('article', views.Article.as_view(), name='article-post'),
     path('article/<author>/<slug:title>', views.Article.as_view(), name='article'),
 ]
